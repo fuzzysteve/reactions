@@ -21,7 +21,7 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 <html>
 <head>
 <title>Reaction information</title>
-  <link href="style.css?v=2" rel="stylesheet" type="text/css"/>
+  <link href="style.css?v=3" rel="stylesheet" type="text/css"/>
   <link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>

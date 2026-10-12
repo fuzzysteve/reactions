@@ -35,7 +35,3 @@ html:not([data-fw-theme])[data-theme="light"] .group-1143 {
 	background-color: #666666 !important;
 }
 
-.good { background-color:lightgreen !important;}
-.ok { background-color:yellow !important;}
-.bad { background-color:red !important;}
-.hover { background-color:darkgrey !important;}
