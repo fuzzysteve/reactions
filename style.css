@@ -1,47 +1,41 @@
-/* tables */
+/* tables: layout only. Colours come from the shared fw-grid component
+   (bootstrap/main.css, bootstrap/dark-mode.css, themes/css/fw-base.css);
+   index.php opts in with class="fw-grid" on its container. */
 table {
 	font-family:arial;
-	background-color: #CDCDCD;
 	margin:10px 0pt 15px;
 	font-size: 8pt;
 	width: 100%;
 	text-align: left;
 }
 
-.group-508 {
-	background-color: #F6EEEE !important;
-}
-.group-509 {
-	background-color: #cccccc !important;
-}
-.group-1143 {
-	background-color: #666666 !important;
-}
-
 table thead tr th, table tfoot tr th {
-	background-color: #e6EEEE;
-	border: 1px solid #FFF;
 	font-size: 8pt;
 	padding: 4px;
 }
 table tbody td {
-	color: #3D3D3D;
 	padding: 4px;
-	background-color: #FFF;
 	vertical-align: top;
-}
-table tbody tr.odd td {
-	background-color:#F0F0F6;
 }
 table thead tr .headerSortDown {
 	background-image: url(desc.gif);
 }
-table thead tr .headerSortDown, table thead tr .headerSortUp {
-background-color: #8dbdd8;
+.number { text-align:right;}
+
+/* Classic light only: per-category tints on the reaction heading rows
+   (class is the reaction's market group ID). Dark mode and token themes
+   use the shared .fw-group-row colours. */
+html:not([data-fw-theme])[data-theme="light"] .group-508 {
+	background-color: #F6EEEE !important;
 }
+html:not([data-fw-theme])[data-theme="light"] .group-509 {
+	background-color: #cccccc !important;
+}
+html:not([data-fw-theme])[data-theme="light"] .group-1143 {
+	background-color: #666666 !important;
+}
+
 .good { background-color:lightgreen !important;}
 .ok { background-color:yellow !important;}
 .bad { background-color:red !important;}
 .hover { background-color:darkgrey !important;}
-.number { text-align:right;}
- 

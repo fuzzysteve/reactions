@@ -3,8 +3,17 @@ $expires = 3599;
 header("Pragma: public");
 header("Cache-Control: maxage=".$expires);
 header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
-$memcache = new Memcache;
-$memcache->connect('localhost', 11211) or die ("Could not connect");
+$redis = new Redis;
+$redis->connect('127.0.0.1', 6379) or die ("Could not connect");
+
+# Forge sell price. Value is weightedaverage|maxval|minval|stddev|median|volume|numorders|fivepercent
+function sellprice($typeid)
+{
+    global $redis;
+    $values=explode("|", (string) $redis->get('10000002|'.$typeid.'|false'));
+    $price=$values[7] ?? 0;
+    return is_numeric($price) ? $price : 0;
+}
 
 require_once('db.inc.php');
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
@@ -12,7 +21,7 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 <html>
 <head>
 <title>Reaction information</title>
-  <link href="style.css" rel="stylesheet" type="text/css"/>
+  <link href="style.css?v=2" rel="stylesheet" type="text/css"/>
   <link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
@@ -30,10 +39,10 @@ if (isset($_GET['skill']) and is_numeric($_GET['skill'])) {
     $refine=0.5;
 }
 ?>
-<div class="container">
+<div class="container fw-grid">
 
 <p>Information on Reactions, with some pricing. Alchemy reactions will have the full output priced out</p>
-<div class="alert warning">Due to refining changes, all Unrefined materials are being calculated at a 50% return. You need scrap metal processing to increase this, by 1% per level. I /think/ I've got it working right. If you can tell me one way or another, please do.<form action="https://www.fuzzwork.co.uk/reactions/" method="get"><select name="skill"><option>1<option>2<option>3<option>4<option>5</select><input type=submit></form></div>
+<div class="alert alert-warning">Due to refining changes, all Unrefined materials are being calculated at a 50% return. You need scrap metal processing to increase this, by 1% per level. I /think/ I've got it working right. If you can tell me one way or another, please do.<form action="https://www.fuzzwork.co.uk/reactions/" method="get"><select name="skill"><option>1<option>2<option>3<option>4<option>5</select><input type=submit></form></div>
 <table>
 <?php
 
@@ -54,7 +63,7 @@ while ($row = $stmt->fetchObject()) {
     $volumein=0;
     $volumeout=0;
     $name=$row->typeName;
-    echo "<tr><th colspan=4 class='group-".$row->marketGroupID."'>$name</th></tr>";
+    echo "<tr><th colspan=4 class='fw-group-row group-".$row->marketGroupID."'>$name</th></tr>";
     $reactionstmt->execute(array(":typeid"=>$row->typeid));
     $productstmt->execute(array(":typeid"=>$row->typeid));
     echo "<tr><td><table border=1><thead><tr><th colspan=4>Input</th><tr>";
@@ -63,12 +72,7 @@ while ($row = $stmt->fetchObject()) {
         echo "<tr><td>";
         echo $reactions->typename."</td><td class='number'>".$reactions->quantity;
         echo "</td><td class='number'>".($reactions->quantity*$reactions->volume)."</td><td class='number'>";
-        $pricedatasell=$memcache->get('forgesell-'.$reactions->materialtypeid);
-        $values=explode("|", $pricedatasell);
-        $innerprice=$values[0];
-        if ($innerprice=="") {
-                $innerprice=0;
-        }
+        $innerprice=sellprice($reactions->materialtypeid);
         $value=$innerprice*$reactions->quantity;
         $cost+=$value;
         $volumein+=$reactions->quantity*$reactions->volume;
@@ -79,12 +83,7 @@ while ($row = $stmt->fetchObject()) {
     while ($products = $productstmt->fetchObject()) {
         echo "<tr><td>";
         echo $products->typename."</td><td class='number'>".$products->quantity."</td><td class='number'>".($products->quantity*$products->volume)."</td><td class='number'>";
-        $pricedatasell=$memcache->get('forgesell-'.$products->producttypeid);
-        $values=explode("|", $pricedatasell);
-        $innerprice=$values[0];
-        if ($innerprice=="") {
-            $innerprice=0;
-        }
+        $innerprice=sellprice($products->producttypeid);
         $value=$innerprice*$products->quantity;
         $price+=$value;
         $volumeout+=$products->quantity*$products->volume;
